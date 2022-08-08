@@ -38,18 +38,23 @@ func Start() {
 
 	//Repository
 	vehiclesRepositoryDB := domain.NewVehiclesRepostoryDB(db)
+	usersRepositoryDB := domain.NewUsersRepositoryDB(db)
 
 	//service
 	vehiclesServiceDB := service.NewVehiclesService(&vehiclesRepositoryDB)
+	usersServiceDB := service.NewUsersService(&usersRepositoryDB)
 
 	//handler
 	vehicleHandler := NewVehiclesHandler(vehiclesServiceDB)
+	userHandler := NewUsersHandler(usersServiceDB)
 	router := gin.Default()
 	router.GET("/vehicles", vehicleHandler.GetAllVehicles)
 	router.GET("/vehicles/:vehicle_id", vehicleHandler.GetVehiclesByID)
 	router.DELETE("/vehicles/:vehicle_id", vehicleHandler.DeleteVehiclesByID)
 	router.POST("/vehicles", vehicleHandler.CreateVehiclesByID)
 	router.PUT("/vehicles/:vehicle_id", vehicleHandler.UpdateVehiclesByID)
+	router.POST("/register", userHandler.CreateUsers)
+	router.POST("/login", userHandler.LoginUsers)
 	fmt.Println("server", serverPort)
 	// routerRun := fmt.Sprintf(":%v", serverPort)
 	router.Run(":8000")
