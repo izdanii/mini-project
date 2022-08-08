@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"mini-project/domain"
+	"mini-project/helper"
 	"mini-project/service"
 	"net/http"
 	"strconv"
@@ -15,7 +16,8 @@ type VehiclesHandlers struct {
 }
 
 func (vh *VehiclesHandlers) GetAllVehicles(g *gin.Context) {
-	vehicles, err := vh.service.GetAllVehicles()
+	pagination := helper.GeneratePaginationRequest(g)
+	vehicles, err := vh.service.GetAllVehicles(*pagination)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, nil)

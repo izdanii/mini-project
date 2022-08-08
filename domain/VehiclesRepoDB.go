@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"mini-project/dto"
 
 	"gorm.io/gorm"
 )
@@ -16,23 +16,30 @@ func NewVehiclesRepostoryDB(client *gorm.DB) RepositoryVehiclesDB {
 }
 
 type VehiclesRepositoryDB interface {
-	FindAll() ([]Vehicles, error)
+	FindAll(dto.Pagination) (dto.Pagination, error)
 	FindByID(string) (Vehicles, error)
 	DeleteID(string) (Vehicles, error)
 	CreateID(Vehicles) (Vehicles, error)
 	UpdateID(Vehicles, int) (Vehicles, error)
 }
 
-func (s *RepositoryVehiclesDB) FindAll() ([]Vehicles, error) {
-
+func (s *RepositoryVehiclesDB) FindAll(pagination dto.Pagination) (dto.Pagination, error) {
+	var p dto.Pagination
+	tr := 0
+	offset := pagination.Page * pagination.Limit
 	var vech []Vehicles
-	fmt.Println("vech", vech)
-	err := s.db.Find(&vech).Error
-	if err != nil {
-		return vech, err
+	errFind := s.db.Limit(pagination.Limit).Offset(offset).Find(&vech).Error
+	if errFind != nil {
+		return p, nil
+	}
+	pagination.Rows = vech
+	totalRows := int64(tr)
+	errCount := s.db.Model(vech).Count(&totalRows).Error
+	if errCount != nil {
+		return p, errCount
 	}
 
-	return vech, nil
+	return pagination, nil
 }
 
 func (s RepositoryVehiclesDB) FindByID(id string) (Vehicles, error) {

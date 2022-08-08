@@ -3,10 +3,11 @@ package service
 import (
 	"fmt"
 	"mini-project/domain"
+	"mini-project/dto"
 )
 
 type VehiclesService interface {
-	GetAllVehicles() ([]domain.Vehicles, error)
+	GetAllVehicles(dto.Pagination) (dto.Pagination, error)
 	GetVehiclesByID(string) (*domain.Vehicles, error)
 	DeleteVehiclesByID(string) (*domain.Vehicles, error)
 	CreateVehiclesByID(domain.InputVehicles) (domain.Vehicles, error)
@@ -17,8 +18,8 @@ type DefaultVehiclesService struct {
 	repo domain.VehiclesRepositoryDB
 }
 
-func (s DefaultVehiclesService) GetAllVehicles() ([]domain.Vehicles, error) {
-	vehicles, err := s.repo.FindAll()
+func (s DefaultVehiclesService) GetAllVehicles(p dto.Pagination) (dto.Pagination, error) {
+	vehicles, err := s.repo.FindAll(p)
 	if err != nil {
 		return vehicles, err
 	}
