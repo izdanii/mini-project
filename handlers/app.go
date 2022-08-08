@@ -23,14 +23,16 @@ func Start() {
 
 	fmt.Println("load environment variables...")
 
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWD")
-	dbAddr := os.Getenv("DB_ADDR")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
+	// dbUser := os.Getenv("DB_USER")
+	// dbPassword := os.Getenv("DB_PASSWD")
+	// dbAddr := os.Getenv("DB_ADDR")
+	// dbPort := os.Getenv("DB_PORT")
+	// dbName := os.Getenv("DB_NAME")
 	serverPort := os.Getenv("SERVER_PORT")
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbAddr, dbPort, dbName)
+	dbURL := "postgres://postgres:f41zd4n11@localhost:5432/miniproject"
+	// dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbAddr, dbPort, dbName)
+	fmt.Println("env", dbURL)
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	fmt.Println(db, err)
 
@@ -44,8 +46,12 @@ func Start() {
 	vehicleHandler := NewVehiclesHandler(vehiclesServiceDB)
 	router := gin.Default()
 	router.GET("/vehicles", vehicleHandler.GetAllVehicles)
-
-	routerRun := fmt.Sprintf(":%s", serverPort)
-	router.Run(routerRun)
+	router.GET("/vehicles/:vehicle_id", vehicleHandler.GetVehiclesByID)
+	router.DELETE("/vehicles/:vehicle_id", vehicleHandler.DeleteVehiclesByID)
+	router.POST("/vehicles", vehicleHandler.CreateVehiclesByID)
+	router.PUT("/vehicles/:vehicle_id", vehicleHandler.UpdateVehiclesByID)
+	fmt.Println("server", serverPort)
+	// routerRun := fmt.Sprintf(":%v", serverPort)
+	router.Run(":8000")
 
 }
