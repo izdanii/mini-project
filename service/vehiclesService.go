@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"mini-project/domain"
 	"mini-project/dto"
+	"mini-project/setupDB"
 )
 
 type VehiclesService interface {
-	GetAllVehicles(dto.Pagination) (dto.Pagination, error)
+	GetAllVehicles(dto.Pagination, int) (dto.Pagination, error)
 	GetVehiclesByID(string) (*domain.Vehicles, error)
 	DeleteVehiclesByID(string) (*domain.Vehicles, error)
 	CreateVehiclesByID(domain.InputVehicles) (domain.Vehicles, error)
@@ -18,8 +19,18 @@ type DefaultVehiclesService struct {
 	repo domain.VehiclesRepositoryDB
 }
 
-func (s DefaultVehiclesService) GetAllVehicles(p dto.Pagination) (dto.Pagination, error) {
-	vehicles, err := s.repo.FindAll(p)
+func (s DefaultVehiclesService) GetAllVehicles(pag dto.Pagination, id int) (dto.Pagination, error) {
+	var p dto.Pagination
+	db, _ := setupDB.ClientDB()
+	userRepo := domain.NewUsersRepositoryDB(db)
+	user, err := userRepo.FindByID(id)
+	if err != nil {
+		return p, err
+	}
+	if user.Username == "" {
+		return p, err
+	}
+	vehicles, err := s.repo.FindAll(pag)
 	if err != nil {
 		return vehicles, err
 	}

@@ -5,6 +5,7 @@ import (
 )
 
 type Users struct {
+	ID        int       `json:"user_id" gorm:"column:user_id"`
 	Username  string    `json:"username" gorm:"username"`
 	Password  string    `json:"password" gorm:"column:password"`
 	Role      string    `json:"role" gorm:"column:role"`
@@ -26,4 +27,5 @@ type Register struct {
 type UsersRepository interface {
 	RegisterUsersInput(Users) (Users, error)
 	LoginUsersInput(string) (Users, error)
+	FindByID(int) (Users, error)
 }

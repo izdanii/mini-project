@@ -15,9 +15,16 @@ type VehiclesHandlers struct {
 	service service.VehiclesService
 }
 
+func getCurrentUserJWT(g *gin.Context) int {
+	currUser := g.MustGet("currentUsers").(domain.Users)
+	idUser := currUser.ID
+	return idUser
+}
+
 func (vh *VehiclesHandlers) GetAllVehicles(g *gin.Context) {
 	pagination := helper.GeneratePaginationRequest(g)
-	vehicles, err := vh.service.GetAllVehicles(*pagination)
+	idUser := getCurrentUserJWT(g)
+	vehicles, err := vh.service.GetAllVehicles(*pagination, idUser)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, nil)

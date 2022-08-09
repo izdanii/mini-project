@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
+	"mini-project/auth"
 	"mini-project/domain"
 	"mini-project/service"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -43,12 +47,13 @@ func Start() {
 	//service
 	vehiclesServiceDB := service.NewVehiclesService(&vehiclesRepositoryDB)
 	usersServiceDB := service.NewUsersService(&usersRepositoryDB)
+	authService := auth.NewService()
 
 	//handler
 	vehicleHandler := NewVehiclesHandler(vehiclesServiceDB)
-	userHandler := NewUsersHandler(usersServiceDB)
+	userHandler := NewUsersHandler(usersServiceDB, authService)
 	router := gin.Default()
-	router.GET("/vehicles", vehicleHandler.GetAllVehicles)
+	router.GET("/vehicles", authMiddleware(authService, usersServiceDB), vehicleHandler.GetAllVehicles)
 	router.GET("/vehicles/:vehicle_id", vehicleHandler.GetVehiclesByID)
 	router.DELETE("/vehicles/:vehicle_id", vehicleHandler.DeleteVehiclesByID)
 	router.POST("/vehicles", vehicleHandler.CreateVehiclesByID)
@@ -59,4 +64,33 @@ func Start() {
 	// routerRun := fmt.Sprintf(":%v", serverPort)
 	router.Run(":8000")
 
+}
+
+func authMiddleware(authService auth.Service, userService service.UsersService) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		authHeader := g.GetHeader("Authorization")
+		if !strings.Contains(authHeader, "Bearer") {
+			g.AbortWithStatusJSON(http.StatusUnauthorized, errors.New("invalid token"))
+			return
+		}
+
+		//Bearer Token
+		tokenString := ""
+		arrayToken := strings.Split(authHeader, " ")
+		if len(arrayToken) == 2 {
+			tokenString = arrayToken[1]
+		}
+		result, userId, err := authService.ValidateToken(tokenString)
+		if err != nil && !result && userId == 0 {
+			g.AbortWithStatusJSON(http.StatusUnauthorized, err)
+			return
+		} else {
+			user, err := userService.GetUsersByID(userId)
+			if err != nil {
+				g.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				return
+			}
+			g.Set("currentUsers", user)
+		}
+	}
 }

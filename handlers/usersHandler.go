@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"mini-project/auth"
 	"mini-project/domain"
 	"mini-project/service"
 	"net/http"
@@ -9,7 +11,8 @@ import (
 )
 
 type UsersHandlers struct {
-	service service.UsersService
+	service     service.UsersService
+	authService auth.Service
 }
 
 func (uh *UsersHandlers) CreateUsers(g *gin.Context) {
@@ -33,11 +36,17 @@ func (uh *UsersHandlers) LoginUsers(g *gin.Context) {
 		g.JSON(http.StatusBadRequest, nil)
 		return
 	}
+	fmt.Println("USERSID", users.ID)
+	token, err := uh.authService.GenerateToken(users.ID)
+	if err != nil {
+		g.JSON(http.StatusBadRequest, err)
+	}
+	response := domain.FormatMemberDTO(users, token)
 
-	g.JSON(http.StatusOK, users)
+	g.JSON(http.StatusOK, response)
 }
 
-func NewUsersHandler(k service.UsersService) *UsersHandlers {
-	return &UsersHandlers{k}
+func NewUsersHandler(k service.UsersService, authService auth.Service) *UsersHandlers {
+	return &UsersHandlers{k, authService}
 
 }

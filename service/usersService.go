@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"mini-project/domain"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 type UsersService interface {
 	CreateUsers(domain.Register) (domain.Users, error)
 	LoginUsers(domain.Login) (domain.Users, error)
+	GetUsersByID(int) (domain.Users, error)
 }
 
 type DefaultUsersService struct {
@@ -62,4 +64,15 @@ func (u DefaultUsersService) LoginUsers(input domain.Login) (domain.Users, error
 	}
 
 	return user, nil
+}
+
+func (u DefaultUsersService) GetUsersByID(id int) (domain.Users, error) {
+	fmt.Println("TEST", id)
+	v, err := u.repo.FindByID(id)
+	if err != nil {
+		return v, err
+	}
+
+	// response := v.domain.Vehicles
+	return v, nil
 }
