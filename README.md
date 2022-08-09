@@ -1,2 +1,49 @@
-# mini-project
-Tugas Mini-Project Golang
+## Mini-Project Golang Celerates CAP
+
+1 Domain (vehicle), 1 domain for Login and Register (users).
+Creating a 2 domain REST API with GIN, GORM, and PostgreSQL
+
+## Inside Mini Project
+- CRUD Vehicles
+- login Member
+- Register Member
+- JWT Token
+- Hexagonal Architecture
+
+## PostgreSQL
+One of The SQL used in this project
+### users
+```sh
+DROP TABLE IF EXISTS "users";
+CREATE TABLE "users" (
+  "user_id" SERIAL PRIMARY KEY NOT NULL,
+  "username" varchar(255) NOT NULL,
+  "password" varchar(255) NOT NULL,
+  "role" varchar(25) NOT NULL,
+  "created_on" timestamp NOT NULL
+);
+```
+### vehicles
+```sh
+CREATE TABLE "vehicles" (
+  "vehicle_id" serial PRIMARY KEY NOT NULL,
+  "name" varchar(100) NOT NULL,
+  "type" varchar(20) NOT NULL,
+  "plat" varchar(20) NOT NULL,
+  "color" varchar(100) NOT NULL
+);
+```
+
+#End Point
+This is the End Point of this project
+```sh
+GET /vehicles                ----> Get All Vehicles
+GET /vehicles/:id            ----> Get Vehicles By ID
+POST /vehicles               ----> Create New Vehicles
+PUT /vehicles                ----> Update Vehicles By ID
+POST /users                  ----> Create New Users
+GET /users                   ----> Login Users
+GET /vehicles?page=0&limit=2 ----> Pagination (Can Customize)
+JWT                          ----> JSON With Token
+```
+
